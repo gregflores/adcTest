@@ -15,12 +15,21 @@
 #include "driverlib.h"
 
 #include <stdio.h>
+#include <stdint.h>
+#include <string.h>
 
+#include "HAL_MSP432_320x240_ILI9341.h"
+#include "color.h"
+#include "graphics.h"
+#include "lcd.h"
 
 
 /* ADC results buffer */
-static uint16_t resultsBuffer[2];
+static uint16_t resultsBuffer[20];
 
+static float normalizedResults[20];
+
+static bool lcd_flag = false;
 /*
  * Main function
  */
@@ -30,19 +39,28 @@ void main(void)
     MAP_WDT_A_holdTimer();
     MAP_Interrupt_disableMaster();
 
-    /* Set the core voltage level to VCORE1 */
-    MAP_PCM_setCoreVoltageLevel(PCM_VCORE1);
+    /* Zero-filling buffer */
+    memset(resultsBuffer, 0x00, 20);
 
-    /* Set 2 flash wait states for Flash bank 0 and 1*/
-    MAP_FlashCtl_setWaitState(FLASH_BANK0, 2);
-    MAP_FlashCtl_setWaitState(FLASH_BANK1, 2);
-
-    /* Initializes Clock System */
-    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
-    MAP_CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1 );
-    MAP_CS_initClockSignal(CS_HSMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1 );
-    MAP_CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1 );
+    FPU_enableModule();
+    FlashCtl_setWaitState(FLASH_BANK0, 2);
+    FlashCtl_setWaitState(FLASH_BANK1, 2);
+    PCM_setPowerState(PCM_AM_DCDC_VCORE1);
+    CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
+    CS_setDCOFrequency(48000000);
+    CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    CS_initClockSignal(CS_HSMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
     MAP_CS_initClockSignal(CS_ACLK, CS_REFOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+
+	_delay_cycles(48000000);
+
+	HAL_LCD_SpiInit();
+	_delay_cycles(160000);
+	initLCD();
+	clearScreen(1);
+
+	setColor(COLOR_16_WHITE);
 
 
     /* Configures Pins as ADC input */
@@ -72,16 +90,30 @@ void main(void)
     MAP_ADC14_enableModule();
     MAP_ADC14_initModule(ADC_CLOCKSOURCE_ADCOSC, ADC_PREDIVIDER_1, ADC_DIVIDER_1, 0);
 
-    /* Configuring ADC Memory (ADC_MEM0 - ADC_MEM19 (A0 - A19)  without repeat)
-         * with internal 2.5v reference */
+    /* Configuring ADC Memory (ADC_MEM0 - ADC_MEM19 (A0 - A19)  without repeat) */
     MAP_ADC14_configureMultiSequenceMode(ADC_MEM0, ADC_MEM19, false);
-    MAP_ADC14_configureConversionMemory(ADC_MEM0,
-            ADC_VREFPOS_AVCC_VREFNEG_VSS,
-            ADC_INPUT_A15, ADC_NONDIFFERENTIAL_INPUTS);
 
-    MAP_ADC14_configureConversionMemory(ADC_MEM1,
-            ADC_VREFPOS_AVCC_VREFNEG_VSS,
-            ADC_INPUT_A9, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM0, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A0, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM1, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A1, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM2, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A2, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM3, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A3, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM4, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A4, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM5, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A5, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM6, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A6, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM7, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A7, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM8, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A8, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM9, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A9, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM10, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A10, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM11, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A11, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM12, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A12, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM13, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A13, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM14, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A14, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM15, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A15, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM16, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A16, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM17, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A17, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM18, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A18, ADC_NONDIFFERENTIAL_INPUTS);
+    MAP_ADC14_configureConversionMemory(ADC_MEM19, ADC_VREFPOS_AVCC_VREFNEG_VSS, ADC_INPUT_A19, ADC_NONDIFFERENTIAL_INPUTS);
+
 
     /* Enabling the interrupt when a conversion on channel 1 (end of sequence)
      *  is complete and enabling conversions */
@@ -102,7 +134,27 @@ void main(void)
 
     while(1)
     {
-        MAP_PCM_gotoLPM0();
+        if(lcd_flag == true)
+        {
+        	uint8_t i;
+        	for (i = 0; i<20; i++)
+			{
+				int8_t string[] = "";
+				normalizedResults[i] = (resultsBuffer[i] * 3.3) / 16384;
+				if (i < 10)
+				{
+					sprintf((char*)string, "%.3f", normalizedResults[i]);
+					drawString(68, (34+(i*16)), FONT_MD_BKG, string);
+				}
+				else if (10 < i < 20)
+				{
+					sprintf((char*)string, "%.3f", normalizedResults[i]);
+					drawString(148, (34+((i-10)*16)), FONT_MD_BKG, string);
+				}
+			}
+        	lcd_flag = false;
+        	MAP_ADC14_toggleConversionTrigger();
+        }
     }
 }
 
@@ -118,25 +170,11 @@ void ADC14_IRQHandler(void)
     MAP_ADC14_clearInterruptFlag(status);
 
     /* ADC_MEM1 conversion completed */
-    if(status & ADC_INT1)
+    if(status & ADC_INT19)
     {
         /* Store ADC14 conversion results */
-    	resultsBuffer[0] = ADC14_getResult(ADC_MEM0);
-    	resultsBuffer[1] = ADC14_getResult(ADC_MEM1);
-
-        char string[8];
-        sprintf(string, "X: %5d", resultsBuffer[0]);
-
-
-        sprintf(string, "Y: %5d", resultsBuffer[1]);
-
-
-        /* Determine if JoyStick button is pressed */
-        int buttonPressed = 0;
-        if (!(P4IN & GPIO_PIN1))
-            buttonPressed = 1;
-
-        sprintf(string, "Button: %d", buttonPressed);
+        MAP_ADC14_getMultiSequenceResult(resultsBuffer);
+        lcd_flag = true;
 
     }
 }
