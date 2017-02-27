@@ -12,7 +12,7 @@
 //****************************************************************************
 
 #include "msp.h"
-#include <driverlib.h>
+#include "driverlib.h"
 
 #include <stdio.h>
 
@@ -45,17 +45,36 @@ void main(void)
     MAP_CS_initClockSignal(CS_ACLK, CS_REFOCLK_SELECT, CS_CLOCK_DIVIDER_1);
 
 
-    /* Configures Pin 6.0 and 4.4 as ADC input */
-    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P6, GPIO_PIN0, GPIO_TERTIARY_MODULE_FUNCTION);
-    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN4, GPIO_TERTIARY_MODULE_FUNCTION);
+    /* Configures Pins as ADC input */
 
-    /* Initializing ADC (ADCOSC/64/8) */
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN5, GPIO_TERTIARY_MODULE_FUNCTION);//P5.5 - A0
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN4, GPIO_TERTIARY_MODULE_FUNCTION);//P5.4 - A1
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN3, GPIO_TERTIARY_MODULE_FUNCTION);//P5.3 - A2
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN2, GPIO_TERTIARY_MODULE_FUNCTION);//P5.2 - A3
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN1, GPIO_TERTIARY_MODULE_FUNCTION);//P5.1 - A4
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P5, GPIO_PIN0, GPIO_TERTIARY_MODULE_FUNCTION);//P5.0 - A5
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN7, GPIO_TERTIARY_MODULE_FUNCTION);//P4.7 - A6
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN6, GPIO_TERTIARY_MODULE_FUNCTION);//P4.6 - A7
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN5, GPIO_TERTIARY_MODULE_FUNCTION);//P4.5 - A8
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN4, GPIO_TERTIARY_MODULE_FUNCTION);//P4.4 - A9
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN3, GPIO_TERTIARY_MODULE_FUNCTION);//P4.3 - A10
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN2, GPIO_TERTIARY_MODULE_FUNCTION);//P4.2 - A11
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN1, GPIO_TERTIARY_MODULE_FUNCTION);//P4.1 - A12
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P4, GPIO_PIN0, GPIO_TERTIARY_MODULE_FUNCTION);//P4.0 - A13
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P6, GPIO_PIN1, GPIO_TERTIARY_MODULE_FUNCTION);//P6.1 - A14
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P6, GPIO_PIN0, GPIO_TERTIARY_MODULE_FUNCTION);//P6.0 - A15
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P9, GPIO_PIN1, GPIO_TERTIARY_MODULE_FUNCTION);//P9.1 - A16
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P9, GPIO_PIN0, GPIO_TERTIARY_MODULE_FUNCTION);//P9.0 - A17
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P8, GPIO_PIN7, GPIO_TERTIARY_MODULE_FUNCTION);//P8.7 - A18
+    MAP_GPIO_setAsPeripheralModuleFunctionInputPin(GPIO_PORT_P8, GPIO_PIN6, GPIO_TERTIARY_MODULE_FUNCTION);//P8.6 - A19
+
+    /* Initializing ADC (ADCOSC/1/1) */
     MAP_ADC14_enableModule();
-    MAP_ADC14_initModule(ADC_CLOCKSOURCE_ADCOSC, ADC_PREDIVIDER_64, ADC_DIVIDER_8, 0);
+    MAP_ADC14_initModule(ADC_CLOCKSOURCE_ADCOSC, ADC_PREDIVIDER_1, ADC_DIVIDER_1, 0);
 
-    /* Configuring ADC Memory (ADC_MEM0 - ADC_MEM1 (A15, A9)  with repeat)
+    /* Configuring ADC Memory (ADC_MEM0 - ADC_MEM19 (A0 - A19)  without repeat)
          * with internal 2.5v reference */
-    MAP_ADC14_configureMultiSequenceMode(ADC_MEM0, ADC_MEM1, true);
+    MAP_ADC14_configureMultiSequenceMode(ADC_MEM0, ADC_MEM19, false);
     MAP_ADC14_configureConversionMemory(ADC_MEM0,
             ADC_VREFPOS_AVCC_VREFNEG_VSS,
             ADC_INPUT_A15, ADC_NONDIFFERENTIAL_INPUTS);
@@ -66,7 +85,7 @@ void main(void)
 
     /* Enabling the interrupt when a conversion on channel 1 (end of sequence)
      *  is complete and enabling conversions */
-    MAP_ADC14_enableInterrupt(ADC_INT1);
+    MAP_ADC14_enableInterrupt(ADC_INT19);
 
     /* Enabling Interrupts */
     MAP_Interrupt_enableInterrupt(INT_ADC14);
