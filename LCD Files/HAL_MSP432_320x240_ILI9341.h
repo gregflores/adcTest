@@ -37,7 +37,7 @@ void delay(uint8_t msec);
 
 // chip select
 #ifndef LCD_CS_PIN
-#define LCD_CS_PIN GPIO_PIN5 // P5.0
+#define LCD_CS_PIN GPIO_PIN5 // P2.5
 #define LCD_CS_PORT GPIO_PORT_P2 //
 #endif
 
