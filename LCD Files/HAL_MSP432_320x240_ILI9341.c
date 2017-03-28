@@ -43,7 +43,7 @@ void HAL_LCD_SpiInit()
     {
         EUSCI_SPI_CLOCKSOURCE_SMCLK,                      		// SMCLK Clock Source
         MAP_CS_getSMCLK(),                                  			// Get SMCLK frequency
-        8000000,                                                	// SPICLK = 16 MHz
+        4000000,                                                	// SPICLK = 16 MHz
         EUSCI_SPI_MSB_FIRST,                             			// MSB First
 		EUSCI_SPI_PHASE_DATA_CAPTURED_ONFIRST_CHANGED_ON_NEXT, 	// Phase //  EUSCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT
         EUSCI_SPI_CLOCKPOLARITY_INACTIVITY_LOW,         			// Low polarity
