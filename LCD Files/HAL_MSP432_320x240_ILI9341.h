@@ -16,8 +16,13 @@ void HAL_LCD_SpiInit();
 void writeData(uint8_t data);
 void writeCommand(uint8_t command);
 void delay(uint8_t msec);
-#define LCD_EUSCI_MODULE                      EUSCI_B0_BASE
-// clock P1.1
+
+#define LCD_EUSCI_MODULE		EUSCI_B0_BASE
+#define LCD_EUSCI_REC_INT		EUSCI_B_SPI_RECEIVE_INTERRUPT
+#define LCD_EUSCI_TRAN_INT		EUSCI_B_SPI_TRANSMIT_INTERRUPT
+#define LCD_INT_ENABLE 			INT_EUSCIB0
+
+// clock P1.5
 #ifndef LCD_SCLK_PIN
 #define LCD_SCLK_PIN GPIO_PIN5
 #define LCD_SCLK_PORT GPIO_PORT_P1
@@ -30,14 +35,14 @@ void delay(uint8_t msec);
 #endif
 
 // data in
-#ifndef LCD_MISO_PIN
-#define LCD_MISO_PIN GPIO_PIN7
-#define LCD_MISO_PORT GPIO_PORT_P1
+#ifndef LCD_LITE_PIN
+#define LCD_LITE_PIN GPIO_PIN7
+#define LCD_LITE_PORT GPIO_PORT_P1
 #endif
 
 // chip select
 #ifndef LCD_CS_PIN
-#define LCD_CS_PIN GPIO_PIN5 // P5.0
+#define LCD_CS_PIN GPIO_PIN5 // P2.5
 #define LCD_CS_PORT GPIO_PORT_P2 //
 #endif
 
