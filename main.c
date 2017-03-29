@@ -37,13 +37,14 @@ static bool lcd_flag = false;
 void main(void)
 {
     /* Halting WDT and disabling master interrupts */
-    MAP_WDT_A_holdTimer();
-    MAP_Interrupt_disableMaster();
+    //MAP_WDT_A_holdTimer();
+    //MAP_Interrupt_disableMaster();
 
     /* Zero-filling buffer */
-    memset(resultsBuffer, 0x00, 20);
+
 
     clockInit();
+    memset(resultsBuffer, 0x00, 20);
     lcd_pageInit();
     lcd_primary();
     adcInit();

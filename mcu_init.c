@@ -10,18 +10,18 @@
 
 void clockInit(void)
 {
-    MAP_FPU_enableModule();
-    MAP_FlashCtl_setWaitState(FLASH_BANK0, 2);
-    MAP_FlashCtl_setWaitState(FLASH_BANK1, 2);
-    MAP_PCM_setPowerState(PCM_AM_DCDC_VCORE1);
-    MAP_CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
-    MAP_CS_setDCOFrequency(48000000);
+    FPU_enableModule();
+    FlashCtl_setWaitState(FLASH_BANK0, 2);
+    FlashCtl_setWaitState(FLASH_BANK1, 2);
+    PCM_setPowerState(PCM_AM_DCDC_VCORE1);
+    CS_setDCOCenteredFrequency(CS_DCO_FREQUENCY_48);
+    CS_setDCOFrequency(48000000);
     MAP_CS_initClockSignal(CS_MCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    MAP_CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    MAP_CS_initClockSignal(CS_HSMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1);
-    MAP_CS_initClockSignal(CS_ACLK, CS_REFOCLK_SELECT, CS_CLOCK_DIVIDER_1);
+    MAP_CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_2);
+    MAP_CS_initClockSignal(CS_HSMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_2);
+    MAP_CS_initClockSignal(CS_ACLK, CS_REFOCLK_SELECT, CS_CLOCK_DIVIDER_2);
+    _delay_cycles(48000000);
 
-	_delay_cycles(48000000);
 }
 
 void adcInit(void)
