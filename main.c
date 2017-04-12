@@ -37,8 +37,8 @@ static bool lcd_flag = false;
 void main(void)
 {
     /* Halting WDT and disabling master interrupts */
-    //MAP_WDT_A_holdTimer();
-    //MAP_Interrupt_disableMaster();
+    MAP_WDT_A_holdTimer();
+    MAP_Interrupt_disableMaster();
 
     /* Zero-filling buffer */
 
